@@ -1,1 +1,93 @@
+import datetime
 
+tasks = []
+
+# Load tasks from file
+def load_tasks():
+    try:
+        with open("tasks.txt", "r") as file:
+            for line in file:
+                name, deadline, status = line.strip().split("|")
+                tasks.append({
+                    "name": name,
+                    "deadline": deadline,
+                    "status": status
+                })
+    except FileNotFoundError:
+        pass
+
+# Save tasks to file
+def save_tasks():
+    with open("tasks.txt", "w") as file:
+        for task in tasks:
+            file.write(f"{task['name']}|{task['deadline']}|{task['status']}\n")
+
+# Add task
+def add_task():
+    name = input("Enter task name: ")
+    deadline = input("Enter deadline (YYYY-MM-DD): ")
+    tasks.append({
+        "name": name,
+        "deadline": deadline,
+        "status": "Pending"
+    })
+    print("✅ Task added successfully!")
+
+# View tasks
+def view_tasks():
+    if not tasks:
+        print("No tasks available.")
+        return
+    for i, task in enumerate(tasks):
+        print(f"{i+1}. {task['name']} | Due: {task['deadline']} | Status: {task['status']}")
+
+# Mark task as completed
+def complete_task():
+    view_tasks()
+    try:
+        choice = int(input("Enter task number to mark complete: "))
+        tasks[choice - 1]["status"] = "Completed"
+        print("✅ Task marked as completed!")
+    except:
+        print("Invalid choice!")
+
+# Deadline reminder
+def check_deadlines():
+    today = datetime.date.today()
+    for task in tasks:
+        deadline = datetime.datetime.strptime(task["deadline"], "%Y-%m-%d").date()
+        if task["status"] == "Pending":
+            if deadline == today:
+                print(f"⚠️ Reminder: '{task['name']}' is due TODAY!")
+            elif deadline < today:
+                print(f"❌ Overdue: '{task['name']}' was due on {deadline}")
+
+# Main menu
+def main():
+    load_tasks()
+    while True:
+        print("\n--- Student Task Manager ---")
+        print("1. Add Task")
+        print("2. View Tasks")
+        print("3. Complete Task")
+        print("4. Check Deadlines")
+        print("5. Exit")
+
+        choice = input("Enter choice: ")
+
+        if choice == "1":
+            add_task()
+        elif choice == "2":
+            view_tasks()
+        elif choice == "3":
+            complete_task()
+        elif choice == "4":
+            check_deadlines()
+        elif choice == "5":
+            save_tasks()
+            print("💾 Tasks saved. Goodbye!")
+            break
+        else:
+            print("Invalid choice!")
+
+main()
